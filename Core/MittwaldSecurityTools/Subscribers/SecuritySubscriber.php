@@ -310,7 +310,7 @@ class SecuritySubscriber implements SubscriberInterface
         }
 
 
-        if ($this->pluginConfig->showRecaptchaForNewsletter && !$this->captchaChecked) {
+        if ($this->pluginConfig->showRecaptchaForNewsletter && !$this->captchaChecked && $this->pluginConfig->recaptchaSecretKey) {
             $gCaptchaResponse = isset($postData['g-recaptcha-response']) ? $postData['g-recaptcha-response'] : FALSE;
 
             $response = $this->client->post('https://www.google.com/recaptcha/api/siteverify', [
@@ -366,7 +366,7 @@ class SecuritySubscriber implements SubscriberInterface
         );
 
 
-        if ($this->pluginConfig->showRecaptchaForUserRegistration && !$this->captchaChecked) {
+        if ($this->pluginConfig->showRecaptchaForUserRegistration && !$this->captchaChecked && $this->pluginConfig->recaptchaSecretKey) {
             $gCaptchaResponse = isset($postData['g-recaptcha-response']) ? $postData['g-recaptcha-response'] : FALSE;
 
             $response = $this->client->post('https://www.google.com/recaptcha/api/siteverify', [
@@ -473,7 +473,7 @@ class SecuritySubscriber implements SubscriberInterface
             $view->extendsTemplate('frontend/plugin/mittwald_security_tools/password_strength/personal_fieldset.tpl');
         }
 
-        if ($this->pluginConfig->showRecaptchaForUserRegistration) {
+        if ($this->pluginConfig->showRecaptchaForUserRegistration && $this->pluginConfig->recaptchaAPIKey) {
             if ($this->pluginConfig->recaptchaLanguageKey) {
                 $view->assign('mittwaldSecurityToolsRecaptchaLanguageKey', $this->pluginConfig->recaptchaLanguageKey);
             }
@@ -497,7 +497,7 @@ class SecuritySubscriber implements SubscriberInterface
      */
     public function addNewsletterTemplates(\Enlight_Event_EventArgs $args)
     {
-        if (!$this->pluginConfig->showRecaptchaForNewsletter) {
+        if (!$this->pluginConfig->showRecaptchaForNewsletter || !$this->pluginConfig->recaptchaAPIKey) {
             return;
         }
 
