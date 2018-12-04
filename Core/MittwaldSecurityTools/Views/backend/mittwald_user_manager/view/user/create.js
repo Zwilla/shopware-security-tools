@@ -28,6 +28,36 @@
 Ext.define('Shopware.apps.MittwaldSecurityTools.view.user.Create', {
 
     override: 'Shopware.apps.UserManager.view.user.Create',
+    initComponent: function(){
+        var me = this;
+
+        me.callParent(arguments);
+
+        Ext.apply(Ext.form.field.VTypes, {
+            password: function(val, field) {
+                if (!field.up('window').edit && !val) return false;
+                var repeatField = field.up('window').down('[name=password2]');
+                var success = true;
+                if (!val) success = true;
+                if (val != repeatField.getValue()) success = false;
+                if (val.length < 8) success = false;
+                if (field.calcStrength(val) < {$minimumPasswordStrengthBackendUser}) {
+                    success = false;
+                }
+                repeatField.validate();
+                return success;
+            },
+            passwordText: '{s name="create_user/mittwald_password_error"}Die Mindestlänge von 8 Zeichen ist unterschritten oder das Passwort ist nicht komplex genug!{/s}',
+            passwordRepeat: function(val, field) {
+                if (!field.up('window').edit && !val) return false;
+                var originalField = field.up('window').down('[name=password]');
+                var success = true;
+                if (val != originalField.getValue()) success = false;
+                return success;
+            },
+            passwordRepeatText: '{s name="create_user/password_error_repeat"}Repeat password properly!{/s}'
+        });
+    },
     getUserTab: function () {
         var me = this;
         var tabPanel = me.callParent(arguments);

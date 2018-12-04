@@ -611,10 +611,6 @@ class SecuritySubscriber implements SubscriberInterface
      */
     public function addUserManagerTemplates(\Enlight_Event_EventArgs $args)
     {
-        if (!$this->pluginConfig->useYubicoAuth) {
-            return;
-        }
-
         /**
          * @var \Enlight_Controller_Action $controller
          */
@@ -623,6 +619,7 @@ class SecuritySubscriber implements SubscriberInterface
         if ($controller->Request()->getActionName() === 'load') {
             $view = $controller->View();
             $view->addTemplateDir($this->pluginPath . 'Views');
+            $view->assign('minimumPasswordStrengthBackendUser', intval($this->pluginConfig->minimumPasswordStrengthBackendUser));
             $view->extendsTemplate('backend/mittwald_user_manager/view/emergency_password/grid.js');
             $view->extendsTemplate('backend/mittwald_user_manager/view/user/create.js');
             $view->extendsTemplate('backend/mittwald_user_manager/model/emergency_password.js');

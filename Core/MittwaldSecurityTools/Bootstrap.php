@@ -456,6 +456,20 @@ class Shopware_Plugins_Core_MittwaldSecurityTools_Bootstrap extends Shopware_Com
             'position' => 180
         ));
 
+        $form->setElement('select', 'minimumPasswordStrengthBackendUser', array(
+            'label' => 'Minimal-Anforderungen für Passwort-Stärke für Backend-User',
+            'description' => 'Bei Unterschreitung ist ein Speichern nicht möglich.',
+            'required' => TRUE,
+            'value' => 0,
+            'store' => array(
+                array(0, 'Passwort nicht überprüfen / Shopware Standardverhalten'),
+                array(60, 'Geringe Komplexität (2/4 Punkte, z.B. Klein- und Großbuchstaben)'),
+                array(86, 'Mittlere Komplexität (3/4 Punkte, z.B. Klein-, Großbuchstaben und Zahlen)'),
+                array(100, 'Hohe Komplexität (4/4 Punkte, Klein- und Großbuchstaben, Zahlen und Sonderzeichen)')
+            ),
+            'position' => 185
+        ));
+
 
         $form->setElement('button', 'recaptchaGroup', array(
             'label' => 'reCaptcha',
