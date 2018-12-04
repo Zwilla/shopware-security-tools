@@ -475,6 +475,12 @@ class Shopware_Plugins_Core_MittwaldSecurityTools_Bootstrap extends Shopware_Com
             'position' => 205
         ));
 
+        $form->setElement('checkbox', 'showRecaptchaForForms', array(
+            'label' => 'reCAPTCHA für Formulare anzeigen',
+            'required' => TRUE,
+            'position' => 207
+        ));
+
         $form->setElement('checkbox', 'useInvisibleRecaptcha', array(
             'label' => 'Invisible reCAPTCHA verwenden',
             'required' => TRUE,
