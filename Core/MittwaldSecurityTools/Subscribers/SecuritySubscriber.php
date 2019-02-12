@@ -526,9 +526,7 @@ class SecuritySubscriber implements SubscriberInterface
         }
 
         if ($this->pluginConfig->showRecaptchaForUserRegistration && $this->pluginConfig->recaptchaAPIKey) {
-            if ($this->pluginConfig->recaptchaLanguageKey) {
-                $view->assign('mittwaldSecurityToolsRecaptchaLanguageKey', $this->pluginConfig->recaptchaLanguageKey);
-            }
+            $this->assignRecaptchaLanguageKey($view);
             $view->assign('mittwaldSecurityToolsRecaptchaKey', $this->pluginConfig->recaptchaAPIKey);
 
             if($this->pluginConfig->useInvisibleRecaptcha) {
@@ -561,9 +559,7 @@ class SecuritySubscriber implements SubscriberInterface
         $view = $controller->View();
         $view->addTemplateDir($this->pluginPath . 'Views');
 
-        if ($this->pluginConfig->recaptchaLanguageKey) {
-            $view->assign('mittwaldSecurityToolsRecaptchaLanguageKey', $this->pluginConfig->recaptchaLanguageKey);
-        }
+        $this->assignRecaptchaLanguageKey($view);
         $view->assign('mittwaldSecurityToolsRecaptchaKey', $this->pluginConfig->recaptchaAPIKey);
 
         if($this->pluginConfig->useInvisibleRecaptcha) {
@@ -592,9 +588,7 @@ class SecuritySubscriber implements SubscriberInterface
         $view = $controller->View();
         $view->addTemplateDir($this->pluginPath . 'Views');
 
-        if ($this->pluginConfig->recaptchaLanguageKey) {
-            $view->assign('mittwaldSecurityToolsRecaptchaLanguageKey', $this->pluginConfig->recaptchaLanguageKey);
-        }
+        $this->assignRecaptchaLanguageKey($view);
         $view->assign('mittwaldSecurityToolsRecaptchaKey', $this->pluginConfig->recaptchaAPIKey);
 
         if($this->pluginConfig->useInvisibleRecaptcha) {
@@ -846,6 +840,17 @@ class SecuritySubscriber implements SubscriberInterface
                             SET mittwald_lastlockedaccountmail = NOW()
                             WHERE userID = ?
                         ", array($user['id']));
+        }
+    }
+
+    /**
+     * @param $view
+     */
+    protected function assignRecaptchaLanguageKey($view)
+    {
+        $languageKey = $this->shopConfig->getByNamespace('MittwaldSecurityTools', 'recaptchaLanguageKey');
+        if ($languageKey) {
+            $view->assign('mittwaldSecurityToolsRecaptchaLanguageKey', $languageKey);
         }
     }
 
