@@ -39,7 +39,9 @@
     <script>
         {literal}
         window.recaptchaCallback = function(token) {
-            document.getElementsByClassName('register--form')[0].submit();
+            if($(".has--error").length === 0) {
+                document.getElementsByClassName('register--form')[0].submit();
+            }
         };
         {/literal}
     </script>
