@@ -5,6 +5,7 @@ namespace Shopware\Mittwald\SecurityTools\Services;
 
 use DateTime;
 use Enlight_Config;
+use Exception;
 
 /**
  * Class LogService
@@ -72,6 +73,7 @@ class LogService
      *
      * @param string $topic
      * @param string $content
+     * @throws Exception
      */
     public function error($topic, $content)
     {
@@ -84,6 +86,7 @@ class LogService
      *
      * @param string $topic
      * @param string $content
+     * @throws Exception
      */
     public function debug($topic, $content)
     {
@@ -99,6 +102,7 @@ class LogService
      * @param string $topic
      * @param string $content
      * @param string $file
+     * @throws Exception
      */
     protected function writeLogEntry($topic, $content, $file)
     {

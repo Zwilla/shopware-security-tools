@@ -41,10 +41,8 @@ Ext.define('Shopware.apps.MittwaldSecurityTools.view.default.Accordion', {
         switch (record.get('reason')) {
             case 'noSSL':
                 return 'SSL ist für den Shop "' + record.get('value') + '" nicht aktiviert.';
-                break;
             case 'badUsername':
                 return 'Der Standard Benutzername "' + record.get('value') + '" ist vorhanden und aktiviert.';
-                break;
         }
         return val;
     },

@@ -143,6 +143,7 @@ class Shopware_Controllers_Backend_MittwaldEmergencyPasswords extends Shopware_C
     /**
      * generates an random password
      *
+     * @param int $length
      * @return string
      */
     protected function getPassword($length = 16)

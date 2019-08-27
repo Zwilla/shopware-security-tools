@@ -153,7 +153,7 @@ class Shopware_Plugins_Core_MittwaldSecurityTools_Bootstrap extends Shopware_Com
     /**
      * Enable plugin method
      *
-     * @return bool
+     * @return array
      */
     public function enable()
     {
@@ -171,7 +171,7 @@ class Shopware_Plugins_Core_MittwaldSecurityTools_Bootstrap extends Shopware_Com
     /**
      * Disable plugin method
      *
-     * @return bool
+     * @return array
      */
     public function disable()
     {
@@ -499,12 +499,6 @@ class Shopware_Plugins_Core_MittwaldSecurityTools_Bootstrap extends Shopware_Com
             'required' => TRUE,
             'position' => 207
         ));
-
-        $form->setElement('checkbox', 'useInvisibleRecaptcha', array(
-            'label' => 'Invisible reCAPTCHA verwenden(nur v2)',
-            'required' => TRUE,
-            'position' => 2010
-        ));
 		
 		$form->setElement('select', 'recaptchaVersion', array(
             'label' => 'reCAPTCHA-Version',
@@ -538,6 +532,12 @@ class Shopware_Plugins_Core_MittwaldSecurityTools_Bootstrap extends Shopware_Com
             'description' => 'Standardmäßig wird Google die Sprache aus dem Browser auslesen. Wenn Sie eine Sprache vorgeben möchten, können Sie hier einen Sprachcode angeben (siehe https://developers.google.com/recaptcha/docs/language)',
             'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
             'position' => 230
+        ));
+
+        $form->setElement('checkbox', 'useInvisibleRecaptcha', array(
+            'label' => 'Invisible reCAPTCHA verwenden (nur v2)',
+            'required' => TRUE,
+            'position' => 235
         ));
 
         $form->setElement('button', 'variousGroup', array(

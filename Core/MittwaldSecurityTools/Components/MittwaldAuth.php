@@ -102,6 +102,7 @@ class MittwaldAuth extends Shopware_Components_Auth
      * @param string $username
      * @param string $password
      * @return Zend_Auth_Result
+     * @throws Exception
      */
     public function login($username, $password)
     {
@@ -153,6 +154,7 @@ class MittwaldAuth extends Shopware_Components_Auth
      *
      * @param string $otp
      * @return bool
+     * @throws Exception
      */
     protected function validateEmergencyPassword($otp)
     {
@@ -185,6 +187,7 @@ class MittwaldAuth extends Shopware_Components_Auth
      *
      * @param string $otp
      * @return bool
+     * @throws Exception
      */
     protected function validateYubikeyOtp($otp)
     {

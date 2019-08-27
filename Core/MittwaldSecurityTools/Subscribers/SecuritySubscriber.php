@@ -330,6 +330,7 @@ class SecuritySubscriber implements SubscriberInterface
      * @param Enlight_Event_EventArgs $args
      * @return bool
      * @throws Enlight_Exception
+     * @throws Exception
      */
     public function onCoreFilesCheck(Enlight_Event_EventArgs $args)
     {
@@ -367,6 +368,7 @@ class SecuritySubscriber implements SubscriberInterface
      *
      * @param Enlight_Event_EventArgs $args
      * @return bool|null
+     * @throws Exception
      */
     public function onSaveNewsletter(Enlight_Event_EventArgs $args)
     {
@@ -426,7 +428,8 @@ class SecuritySubscriber implements SubscriberInterface
 
     /**
      * @param Enlight_Hook_HookArgs $args
-     * @return null
+     * @return null|void
+     * @throws Exception
      */
     public function onAfterValidateInput(Enlight_Hook_HookArgs $args)
     {
@@ -470,6 +473,7 @@ class SecuritySubscriber implements SubscriberInterface
         }
 
         $args->setReturn($return);
+        return;
     }
 
 
@@ -479,6 +483,7 @@ class SecuritySubscriber implements SubscriberInterface
      *
      * @param Enlight_Event_EventArgs $args
      * @return bool|null
+     * @throws Exception
      */
     public function onSaveRegister(Enlight_Event_EventArgs $args)
     {
@@ -778,6 +783,7 @@ class SecuritySubscriber implements SubscriberInterface
      *
      * @param Enlight_Event_EventArgs $args
      * @return mixed
+     * @throws Exception
      */
     public function logFailedFELogin(Enlight_Event_EventArgs $args)
     {
@@ -813,6 +819,7 @@ class SecuritySubscriber implements SubscriberInterface
      *
      * @param Enlight_Event_EventArgs $args
      * @return mixed
+     * @throws Exception
      */
     public function logFailedBELogin(Enlight_Event_EventArgs $args)
     {
@@ -833,6 +840,7 @@ class SecuritySubscriber implements SubscriberInterface
     /**
      * @param string $username
      * @param bool $isBackend
+     * @throws Exception
      */
     protected function saveFailedLogin($username, $isBackend)
     {
@@ -851,6 +859,7 @@ class SecuritySubscriber implements SubscriberInterface
      * cron event listerener for log table cleanup
      *
      * @return bool
+     * @throws Exception
      */
     public function onLogCleanupCron()
     {
@@ -871,6 +880,7 @@ class SecuritySubscriber implements SubscriberInterface
     /**
      * @param $interval
      * @param $isBackend
+     * @throws Exception
      */
     protected function cleanUpLogTable($interval, $isBackend)
     {
@@ -886,8 +896,7 @@ class SecuritySubscriber implements SubscriberInterface
     /**
      * @param $isBackend
      * @param $limit
-     * @throws Enlight_Exception
-     * @throws Zend_Db_Statement_Exception
+     * @throws Exception
      */
     protected function checkFailedLoginLimits($isBackend, $limit)
     {
@@ -912,6 +921,7 @@ class SecuritySubscriber implements SubscriberInterface
      * Checks the locked account mail interval and sends mail if necessary
      *
      * @param string $mail
+     * @throws Exception
      */
     protected function checkLockedAccountMail($mail)
     {
