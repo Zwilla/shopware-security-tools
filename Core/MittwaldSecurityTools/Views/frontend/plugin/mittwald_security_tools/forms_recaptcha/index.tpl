@@ -20,10 +20,11 @@
 *
 *}
 
-{extends file="parent:frontend/register/index.tpl"}
+{extends file="parent:frontend/forms/index.tpl"}
 
 {* add googles recaptcha *}
-{block name='frontend_register_index_form_submit' prepend}
+{block name='frontend_forms_form_elements_form_captcha'}
+    {$smarty.block.parent}
     <div class="panel">
         <div class="panel--body is--wide">
             <div class="g-recaptcha" data-sitekey="{$mittwaldSecurityToolsRecaptchaKey}"></div>

@@ -45,7 +45,7 @@ class Shopware_Plugins_Core_MittwaldSecurityTools_Bootstrap extends Shopware_Com
      */
     public function getVersion()
     {
-        return "1.5.2";
+        return "1.5.5";
     }
 
 
@@ -456,6 +456,20 @@ class Shopware_Plugins_Core_MittwaldSecurityTools_Bootstrap extends Shopware_Com
             'position' => 180
         ));
 
+        $form->setElement('select', 'minimumPasswordStrengthBackendUser', array(
+            'label' => 'Minimal-Anforderungen für Passwort-Stärke für Backend-User',
+            'description' => 'Bei Unterschreitung ist ein Speichern nicht möglich.',
+            'required' => TRUE,
+            'value' => 0,
+            'store' => array(
+                array(0, 'Passwort nicht überprüfen / Shopware Standardverhalten'),
+                array(60, 'Geringe Komplexität (2/4 Punkte, z.B. Klein- und Großbuchstaben)'),
+                array(86, 'Mittlere Komplexität (3/4 Punkte, z.B. Klein-, Großbuchstaben und Zahlen)'),
+                array(100, 'Hohe Komplexität (4/4 Punkte, Klein- und Großbuchstaben, Zahlen und Sonderzeichen)')
+            ),
+            'position' => 185
+        ));
+
 
         $form->setElement('button', 'recaptchaGroup', array(
             'label' => 'reCaptcha',
@@ -475,10 +489,28 @@ class Shopware_Plugins_Core_MittwaldSecurityTools_Bootstrap extends Shopware_Com
             'position' => 205
         ));
 
+        $form->setElement('checkbox', 'showRecaptchaForForms', array(
+            'label' => 'reCAPTCHA für Formulare anzeigen',
+            'required' => TRUE,
+            'position' => 207
+        ));
+
         $form->setElement('checkbox', 'useInvisibleRecaptcha', array(
-            'label' => 'Invisible reCAPTCHA verwenden',
+            'label' => 'Invisible reCAPTCHA verwenden(nur v2)',
             'required' => TRUE,
             'position' => 2010
+        ));
+		
+		$form->setElement('select', 'recaptchaVersion', array(
+            'label' => 'reCAPTCHA-Version',
+            'description' => '',
+            'required' => TRUE,
+            'value' => 2,
+            'store' => array(
+                array(2, 'v2'),
+                array(3, 'v3')
+            ),
+            'position' => 209
         ));
 
         $form->setElement('textfield', 'recaptchaAPIKey', array(
