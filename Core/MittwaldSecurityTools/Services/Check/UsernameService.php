@@ -3,6 +3,10 @@
 namespace Shopware\Mittwald\SecurityTools\Services\Check;
 
 
+use Enlight_Components_Db_Adapter_Pdo_Mysql;
+use Enlight_Config;
+use Zend_Db_Statement_Exception;
+
 /**
  * Class LogService
  * Checks if any unsafe standard usernames are configured and active
@@ -44,13 +48,13 @@ class UsernameService implements CheckServiceInterface
 
 
     /**
-     * @var \Enlight_Config
+     * @var Enlight_Config
      */
     protected $config;
 
 
     /**
-     * @var \Enlight_Components_Db_Adapter_Pdo_Mysql
+     * @var Enlight_Components_Db_Adapter_Pdo_Mysql
      */
     protected $db;
 
@@ -58,10 +62,10 @@ class UsernameService implements CheckServiceInterface
     /**
      * inject all needed dependencies
      *
-     * @param \Enlight_Config $config
-     * @param \Enlight_Components_Db_Adapter_Pdo_Mysql $db
+     * @param Enlight_Config $config
+     * @param Enlight_Components_Db_Adapter_Pdo_Mysql $db
      */
-    public function __construct(\Enlight_Config $config, \Enlight_Components_Db_Adapter_Pdo_Mysql $db)
+    public function __construct(Enlight_Config $config, Enlight_Components_Db_Adapter_Pdo_Mysql $db)
     {
         $this->config = $config;
         $this->db = $db;
@@ -72,7 +76,7 @@ class UsernameService implements CheckServiceInterface
      * do the actual check
      *
      * @return array
-     * @throws \Zend_Db_Statement_Exception
+     * @throws Zend_Db_Statement_Exception
      */
     public function getResult()
     {

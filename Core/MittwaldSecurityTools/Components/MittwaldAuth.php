@@ -26,10 +26,13 @@
 namespace Shopware\Mittwald\SecurityTools\Components;
 
 
+use Enlight_Components_Auth;
 use Enlight_Components_Db_Adapter_Pdo_Mysql;
+use Exception;
 use GuzzleHttp\ClientInterface;
 use Shopware\Mittwald\SecurityTools\Services\LogService;
 use Shopware_Components_Auth;
+use Zend_Auth;
 use Zend_Auth_Adapter_Interface;
 use Zend_Auth_Result;
 use Zend_Auth_Storage_Interface;
@@ -98,7 +101,7 @@ class MittwaldAuth extends Shopware_Components_Auth
      *
      * @param string $username
      * @param string $password
-     * @return \Zend_Auth_Result
+     * @return Zend_Auth_Result
      */
     public function login($username, $password)
     {
@@ -133,7 +136,7 @@ class MittwaldAuth extends Shopware_Components_Auth
                     $this->clearIdentity();
                     return new Zend_Auth_Result(-3, $authResult->getIdentity(), $authResult->getMessages());
                 }
-            } catch (\Exception $ex) {
+            } catch (Exception $ex) {
                 //something has gone wrong. return negative result.
                 $this->logger->debug('exception', $ex->getMessage());
                 $this->clearIdentity();
@@ -222,7 +225,7 @@ class MittwaldAuth extends Shopware_Components_Auth
                     // something gone wrong. try next server.
                     continue;
                 }
-            } catch (\Exception $ex) {
+            } catch (Exception $ex) {
                 // No response, continue with the next server
                 continue;
             }
@@ -283,7 +286,7 @@ class MittwaldAuth extends Shopware_Components_Auth
      * Sets the persistent storage handler
      *
      * @param  Zend_Auth_Storage_Interface $storage
-     * @return \Zend_Auth Provides a fluent interface
+     * @return Zend_Auth Provides a fluent interface
      */
     public function setStorage(Zend_Auth_Storage_Interface $storage)
     {
@@ -388,7 +391,7 @@ class MittwaldAuth extends Shopware_Components_Auth
      * Sets the persistent storage handler
      *
      * @param Zend_Auth_Adapter_Interface $adapter
-     * @return \Enlight_Components_Auth
+     * @return Enlight_Components_Auth
      */
     public function setAdapter(Zend_Auth_Adapter_Interface $adapter)
     {

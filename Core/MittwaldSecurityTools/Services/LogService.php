@@ -3,6 +3,9 @@
 namespace Shopware\Mittwald\SecurityTools\Services;
 
 
+use DateTime;
+use Enlight_Config;
+
 /**
  * Class LogService
  * Writes log files
@@ -43,16 +46,16 @@ class LogService
 
 
     /**
-     * @var \Enlight_Config
+     * @var Enlight_Config
      */
     protected $config;
 
     /**
      * initialize the logger. create the logs folder and inject config
      *
-     * @param \Enlight_Config $config
+     * @param Enlight_Config $config
      */
-    public function __construct(\Enlight_Config $config)
+    public function __construct(Enlight_Config $config)
     {
         $this->config = $config;
 
@@ -99,7 +102,7 @@ class LogService
      */
     protected function writeLogEntry($topic, $content, $file)
     {
-        $now = new \DateTime();
+        $now = new DateTime();
         $logEntry = $now->format('Y-m-d H:i:s') . ' - ' . $topic . "\n";
         $logEntry .= $content;
         $logEntry .= "--------------------- \n\n";

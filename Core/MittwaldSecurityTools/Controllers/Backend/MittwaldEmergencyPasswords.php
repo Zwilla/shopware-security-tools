@@ -1,5 +1,9 @@
 <?php
+
+use Doctrine\ORM\AbstractQuery;
+use Shopware\Components\Model\QueryBuilder;
 use Shopware\CustomModels\MittwaldSecurityTools\EmergencyPassword;
+use Shopware\Models\User\User;
 
 
 /**
@@ -78,7 +82,7 @@ class Shopware_Controllers_Backend_MittwaldEmergencyPasswords extends Shopware_C
         $userID = $this->Request()->getParam('userID', NULL);
 
         $builder = $this->getMyQueryBuilder(0, 20, array(), array(), $userID);
-        $paginator = $this->getQueryPaginator($builder, \Doctrine\ORM\AbstractQuery::HYDRATE_OBJECT);
+        $paginator = $this->getQueryPaginator($builder, AbstractQuery::HYDRATE_OBJECT);
         /**
          * @var EmergencyPassword[] $data
          */
@@ -87,7 +91,7 @@ class Shopware_Controllers_Backend_MittwaldEmergencyPasswords extends Shopware_C
         $userRepository = $this->getManager()->getRepository('\Shopware\Models\User\User');
 
         /**
-         * @var \Shopware\Models\User\User $user
+         * @var User $user
          */
         $user = $userRepository->find($userID);
 
@@ -162,13 +166,13 @@ class Shopware_Controllers_Backend_MittwaldEmergencyPasswords extends Shopware_C
         $userRepository = $this->getManager()->getRepository('\Shopware\Models\User\User');
 
         /**
-         * @var \Shopware\Models\User\User $user
+         * @var User $user
          */
         $user = $userRepository->find($userID);
 
         if ($user !== NULL) {
             $builder = $this->getMyQueryBuilder(0, 10, array(), array(), $userID);
-            $paginator = $this->getQueryPaginator($builder, \Doctrine\ORM\AbstractQuery::HYDRATE_OBJECT);
+            $paginator = $this->getQueryPaginator($builder, AbstractQuery::HYDRATE_OBJECT);
             $data = $paginator->getIterator()->getArrayCopy();
 
             foreach ($data as $model) {
@@ -210,7 +214,7 @@ class Shopware_Controllers_Backend_MittwaldEmergencyPasswords extends Shopware_C
      * @param $sort
      * @param $filter
      * @param $userID
-     * @return \Shopware\Components\Model\QueryBuilder
+     * @return QueryBuilder
      */
     protected function getMyQueryBuilder($offset, $limit, $sort, $filter, $userID)
     {
