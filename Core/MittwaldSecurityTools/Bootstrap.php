@@ -1,5 +1,10 @@
 <?php
 
+use Doctrine\ORM\Tools\SchemaTool;
+use Doctrine\ORM\Tools\ToolsException;
+use Shopware\Bundle\AttributeBundle\Service\CrudService;
+use Shopware\Mittwald\SecurityTools\Subscribers\SecuritySubscriber;
+
 /**
  * Class Shopware_Plugins_Frontend_MittwaldSecurityTools_Bootstrap
  *
@@ -105,7 +110,7 @@ class Shopware_Plugins_Core_MittwaldSecurityTools_Bootstrap extends Shopware_Com
                 Shopware()->Db()->exec('ALTER TABLE `s_core_auth_attributes` CHANGE `Mittwald_Yubikey` `mittwald_yubikey` VARCHAR(500) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;');
 
                 /**
-                 * @var \Shopware\Bundle\AttributeBundle\Service\CrudService $service
+                 * @var CrudService $service
                  */
                 $service = $this->get('shopware_attribute.crud_service');
                 $service->update('s_core_auth_attributes', 'Mittwald_YubiKey', 'string', [], null, true);
@@ -123,7 +128,7 @@ class Shopware_Plugins_Core_MittwaldSecurityTools_Bootstrap extends Shopware_Com
                 $this->createForm();
                 $this->insertLockedAccountMailTemplate();
                 /**
-                 * @var \Shopware\Bundle\AttributeBundle\Service\CrudService $service
+                 * @var CrudService $service
                  */
                 $service = $this->get('shopware_attribute.crud_service');
                 $service->update('s_user_attributes', 'mittwald_lastlockedaccountmail', 'datetime', [], null, true);
@@ -148,7 +153,7 @@ class Shopware_Plugins_Core_MittwaldSecurityTools_Bootstrap extends Shopware_Com
     /**
      * Enable plugin method
      *
-     * @return bool
+     * @return array
      */
     public function enable()
     {
@@ -166,7 +171,7 @@ class Shopware_Plugins_Core_MittwaldSecurityTools_Bootstrap extends Shopware_Com
     /**
      * Disable plugin method
      *
-     * @return bool
+     * @return array
      */
     public function disable()
     {
@@ -222,7 +227,7 @@ class Shopware_Plugins_Core_MittwaldSecurityTools_Bootstrap extends Shopware_Com
                 $this->Path()
             );
 
-            $subscriber = new \Shopware\Mittwald\SecurityTools\Subscribers\SecuritySubscriber(
+            $subscriber = new SecuritySubscriber(
                 $this->Config(),
                 Shopware()->Config(),
                 $this->get('models'),
@@ -245,14 +250,14 @@ class Shopware_Plugins_Core_MittwaldSecurityTools_Bootstrap extends Shopware_Com
     /**
      * add our custom tables to database
      *
-     * @throws \Doctrine\ORM\Tools\ToolsException
+     * @throws ToolsException
      */
     protected function createSchema()
     {
         $this->registerCustomModels();
 
         $em = $this->Application()->Models();
-        $tool = new \Doctrine\ORM\Tools\SchemaTool($em);
+        $tool = new SchemaTool($em);
 
         $classes = array(
             $em->getClassMetadata('Shopware\CustomModels\MittwaldSecurityTools\FailedLogin'),
@@ -268,7 +273,7 @@ class Shopware_Plugins_Core_MittwaldSecurityTools_Bootstrap extends Shopware_Com
 
 
         /**
-         * @var \Shopware\Bundle\AttributeBundle\Service\CrudService $service
+         * @var CrudService $service
          */
         $service = $this->get('shopware_attribute.crud_service');
         $service->update('s_core_auth_attributes', 'Mittwald_YubiKey', 'string', [], null, true);
@@ -286,14 +291,14 @@ class Shopware_Plugins_Core_MittwaldSecurityTools_Bootstrap extends Shopware_Com
     /**
      * drops our database tables
      *
-     * @throws \Doctrine\ORM\Tools\ToolsException
+     * @throws ToolsException
      */
     protected function dropSchema()
     {
         $this->registerCustomModels();
 
         $em = $this->Application()->Models();
-        $tool = new \Doctrine\ORM\Tools\SchemaTool($em);
+        $tool = new SchemaTool($em);
 
         $classes = array(
             $em->getClassMetadata('Shopware\CustomModels\MittwaldSecurityTools\FailedLogin'),
@@ -304,7 +309,7 @@ class Shopware_Plugins_Core_MittwaldSecurityTools_Bootstrap extends Shopware_Com
             $tool->dropSchema($classes);
 
             /**
-             * @var \Shopware\Bundle\AttributeBundle\Service\CrudService $service
+             * @var CrudService $service
              */
             $service = $this->get('shopware_attribute.crud_service');
             $service->delete('s_core_auth_attributes', 'Mittwald_YubiKey', true);
@@ -494,12 +499,6 @@ class Shopware_Plugins_Core_MittwaldSecurityTools_Bootstrap extends Shopware_Com
             'required' => TRUE,
             'position' => 207
         ));
-
-        $form->setElement('checkbox', 'useInvisibleRecaptcha', array(
-            'label' => 'Invisible reCAPTCHA verwenden(nur v2)',
-            'required' => TRUE,
-            'position' => 2010
-        ));
 		
 		$form->setElement('select', 'recaptchaVersion', array(
             'label' => 'reCAPTCHA-Version',
@@ -533,6 +532,12 @@ class Shopware_Plugins_Core_MittwaldSecurityTools_Bootstrap extends Shopware_Com
             'description' => 'Standardmäßig wird Google die Sprache aus dem Browser auslesen. Wenn Sie eine Sprache vorgeben möchten, können Sie hier einen Sprachcode angeben (siehe https://developers.google.com/recaptcha/docs/language)',
             'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
             'position' => 230
+        ));
+
+        $form->setElement('checkbox', 'useInvisibleRecaptcha', array(
+            'label' => 'Invisible reCAPTCHA verwenden (nur v2)',
+            'required' => TRUE,
+            'position' => 235
         ));
 
         $form->setElement('button', 'variousGroup', array(

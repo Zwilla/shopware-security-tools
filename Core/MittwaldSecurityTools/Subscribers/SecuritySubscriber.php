@@ -3,8 +3,17 @@
 namespace Shopware\Mittwald\SecurityTools\Subscribers;
 
 
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Enlight\Event\SubscriberInterface;
+use Enlight_Components_Db_Adapter_Pdo_Mysql;
+use Enlight_Config;
+use Enlight_Controller_Action;
+use Enlight_Event_EventArgs;
+use Enlight_Exception;
+use Enlight_Hook_HookArgs;
+use Exception;
+use GuzzleHttp\ClientInterface;
 use Shopware\Components\DependencyInjection\Container;
 use Shopware\Components\HttpClient\GuzzleFactory;
 use Shopware\Components\Model\ModelManager;
@@ -13,6 +22,16 @@ use Shopware\CustomModels\MittwaldSecurityTools\FailedLogin;
 use Shopware\Mittwald\SecurityTools\Components\MittwaldAuth;
 use Shopware\Mittwald\SecurityTools\Services\LogService;
 use Shopware\Mittwald\SecurityTools\Services\PasswordStrengthService;
+use Shopware_Components_Auth;
+use Shopware_Components_Check_File;
+use Shopware_Components_Config;
+use Shopware_Components_Snippet_Manager;
+use Shopware_Components_TemplateMail;
+use Shopware_Controllers_Backend_Login;
+use Shopware_Controllers_Frontend_Forms;
+use Shopware_Controllers_Frontend_Newsletter;
+use Shopware_Controllers_Frontend_Register;
+use Zend_Db_Statement_Exception;
 
 
 /**
@@ -44,12 +63,12 @@ class SecuritySubscriber implements SubscriberInterface
 
 
     /**
-     * @var \Enlight_Config
+     * @var Enlight_Config
      */
     protected $pluginConfig;
 
     /**
-     * @var \Shopware_Components_Config
+     * @var Shopware_Components_Config
      */
     protected $shopConfig;
 
@@ -72,12 +91,12 @@ class SecuritySubscriber implements SubscriberInterface
 
 
     /**
-     * @var \Enlight_Components_Db_Adapter_Pdo_Mysql
+     * @var Enlight_Components_Db_Adapter_Pdo_Mysql
      */
     protected $db;
 
     /**
-     * @var \Shopware_Components_TemplateMail
+     * @var Shopware_Components_TemplateMail
      */
     protected $templateMail;
 
@@ -97,12 +116,12 @@ class SecuritySubscriber implements SubscriberInterface
     protected $docPath;
 
     /**
-     * @var \GuzzleHttp\ClientInterface
+     * @var ClientInterface
      */
     protected $client;
 
     /**
-     * @var \Shopware_Components_Snippet_Manager
+     * @var Shopware_Components_Snippet_Manager
      */
     protected $snippets;
 
@@ -115,24 +134,24 @@ class SecuritySubscriber implements SubscriberInterface
     /**
      * construct the subscriber with all dependencies
      *
-     * @param \Enlight_Config $pluginConfig
-     * @param \Shopware_Components_Config $shopConfig
+     * @param Enlight_Config $pluginConfig
+     * @param Shopware_Components_Config $shopConfig
      * @param ModelManager $modelManager
-     * @param \Enlight_Components_Db_Adapter_Pdo_Mysql $db
-     * @param \Shopware_Components_TemplateMail $templateMail
+     * @param Enlight_Components_Db_Adapter_Pdo_Mysql $db
+     * @param Shopware_Components_TemplateMail $templateMail
      * @param GuzzleFactory $guzzleFactory
-     * @param \Shopware_Components_Snippet_Manager $snippets
+     * @param Shopware_Components_Snippet_Manager $snippets
      * @param string $pluginPath
      * @param string $appPath
      * @param string $docPath
      */
-    public function __construct(\Enlight_Config $pluginConfig,
-                                \Shopware_Components_Config $shopConfig,
+    public function __construct(Enlight_Config $pluginConfig,
+                                Shopware_Components_Config $shopConfig,
                                 ModelManager $modelManager,
-                                \Enlight_Components_Db_Adapter_Pdo_Mysql $db,
-                                \Shopware_Components_TemplateMail $templateMail,
+                                Enlight_Components_Db_Adapter_Pdo_Mysql $db,
+                                Shopware_Components_TemplateMail $templateMail,
                                 GuzzleFactory $guzzleFactory,
-                                \Shopware_Components_Snippet_Manager $snippets,
+                                Shopware_Components_Snippet_Manager $snippets,
                                 $pluginPath, $appPath, $docPath)
     {
         $this->pluginConfig = $pluginConfig;
@@ -182,7 +201,7 @@ class SecuritySubscriber implements SubscriberInterface
     }
 	
 	
-	public function onConfigSave(\Enlight_Event_EventArgs $args)
+	public function onConfigSave(Enlight_Event_EventArgs $args)
     {
 		$controller = $args->getSubject();
 		$request = $controller->Request();
@@ -241,10 +260,10 @@ class SecuritySubscriber implements SubscriberInterface
     /**
      * decorates the default auth component
      *
-     * @param \Enlight_Event_EventArgs $args
-     * @throws \Exception
+     * @param Enlight_Event_EventArgs $args
+     * @throws Exception
      */
-    public function onAfterInitAuth(\Enlight_Event_EventArgs $args)
+    public function onAfterInitAuth(Enlight_Event_EventArgs $args)
     {
         if (!$this->pluginConfig->useYubicoAuth) {
             return;
@@ -257,7 +276,7 @@ class SecuritySubscriber implements SubscriberInterface
 
 
         /**
-         * @var \Shopware_Components_Auth $originalAuth
+         * @var Shopware_Components_Auth $originalAuth
          */
         $originalAuth = $subject->get('auth');
         $auth = MittwaldAuth::getInstance();
@@ -308,11 +327,12 @@ class SecuritySubscriber implements SubscriberInterface
     /**
      * triggers the shopware file check and sends an email-notification, if any modification was detected
      *
-     * @param \Enlight_Event_EventArgs $args
+     * @param Enlight_Event_EventArgs $args
      * @return bool
-     * @throws \Enlight_Exception
+     * @throws Enlight_Exception
+     * @throws Exception
      */
-    public function onCoreFilesCheck(\Enlight_Event_EventArgs $args)
+    public function onCoreFilesCheck(Enlight_Event_EventArgs $args)
     {
         if (!$this->pluginConfig->mailNotificationForModifiedCoreFiles) {
             return TRUE;
@@ -326,7 +346,7 @@ class SecuritySubscriber implements SubscriberInterface
             return FALSE;
         }
 
-        $list = new \Shopware_Components_Check_File($fileName, $this->docPath, []);
+        $list = new Shopware_Components_Check_File($fileName, $this->docPath, []);
 
         foreach ($list->toArray() as $file) {
             if (!$file['result']) {
@@ -346,13 +366,14 @@ class SecuritySubscriber implements SubscriberInterface
      * replacement for newsletter index action. will check the google reCAPTCHA and pipe data to original action, if captcha is valid
      * or captcha validation is not activated.
      *
-     * @param \Enlight_Event_EventArgs $args
+     * @param Enlight_Event_EventArgs $args
      * @return bool|null
+     * @throws Exception
      */
-    public function onSaveNewsletter(\Enlight_Event_EventArgs $args)
+    public function onSaveNewsletter(Enlight_Event_EventArgs $args)
     {
         /**
-         * @var \Shopware_Controllers_Frontend_Newsletter $controller
+         * @var Shopware_Controllers_Frontend_Newsletter $controller
          */
         $controller = $args->getSubject();
 
@@ -406,12 +427,13 @@ class SecuritySubscriber implements SubscriberInterface
 
 
     /**
-     * @param \Enlight_Hook_HookArgs $args
-     * @return null
+     * @param Enlight_Hook_HookArgs $args
+     * @return null|void
+     * @throws Exception
      */
-    public function onAfterValidateInput(\Enlight_Hook_HookArgs $args)
+    public function onAfterValidateInput(Enlight_Hook_HookArgs $args)
     {
-        /** @var \Shopware_Controllers_Frontend_Forms $subject */
+        /** @var Shopware_Controllers_Frontend_Forms $subject */
         $subject = $args->getSubject();
 
         $return = $args->getReturn();
@@ -451,6 +473,7 @@ class SecuritySubscriber implements SubscriberInterface
         }
 
         $args->setReturn($return);
+        return;
     }
 
 
@@ -458,13 +481,14 @@ class SecuritySubscriber implements SubscriberInterface
      * replacement for save register. will check the google reCAPTCHA and pipe data to original action, if captcha is valid
      * or captcha validation is not activated.
      *
-     * @param \Enlight_Event_EventArgs $args
+     * @param Enlight_Event_EventArgs $args
      * @return bool|null
+     * @throws Exception
      */
-    public function onSaveRegister(\Enlight_Event_EventArgs $args)
+    public function onSaveRegister(Enlight_Event_EventArgs $args)
     {
         /**
-         * @var \Shopware_Controllers_Frontend_Register $controller
+         * @var Shopware_Controllers_Frontend_Register $controller
          */
         $controller = $args->getSubject();
 
@@ -526,12 +550,12 @@ class SecuritySubscriber implements SubscriberInterface
     /**
      * adds the minimum password strength check to ajax password validation
      *
-     * @param \Enlight_Event_EventArgs $args
+     * @param Enlight_Event_EventArgs $args
      */
-    public function enhanceAjaxPasswordValidation(\Enlight_Event_EventArgs $args)
+    public function enhanceAjaxPasswordValidation(Enlight_Event_EventArgs $args)
     {
         /**
-         * @var \Enlight_Controller_Action $controller
+         * @var Enlight_Controller_Action $controller
          */
         $controller = $args->getSubject();
 
@@ -561,16 +585,16 @@ class SecuritySubscriber implements SubscriberInterface
     /**
      * add our frontend templates for password strength and reCAPTCHA if necessary
      *
-     * @param \Enlight_Event_EventArgs $args
+     * @param Enlight_Event_EventArgs $args
      */
-    public function addTemplates(\Enlight_Event_EventArgs $args)
+    public function addTemplates(Enlight_Event_EventArgs $args)
     {
         if (!$this->pluginConfig->showPasswordStrengthForUserRegistration && !$this->pluginConfig->showRecaptchaForUserRegistration) {
             return;
         }
 
         /**
-         * @var \Enlight_Controller_Action $controller
+         * @var Enlight_Controller_Action $controller
          */
         $controller = $args->getSubject();
 
@@ -607,16 +631,16 @@ class SecuritySubscriber implements SubscriberInterface
     /**
      * add our frontend templates for reCAPTCHA if necessary
      *
-     * @param \Enlight_Event_EventArgs $args
+     * @param Enlight_Event_EventArgs $args
      */
-    public function addFormsTemplates(\Enlight_Event_EventArgs $args)
+    public function addFormsTemplates(Enlight_Event_EventArgs $args)
     {
         if (!$this->pluginConfig->showRecaptchaForForms || !$this->pluginConfig->recaptchaAPIKey) {
             return;
         }
 
         /**
-         * @var \Enlight_Controller_Action $controller
+         * @var Enlight_Controller_Action $controller
          */
         $controller = $args->getSubject();
 
@@ -643,16 +667,16 @@ class SecuritySubscriber implements SubscriberInterface
     /**
      * add our frontend templates for reCAPTCHA if necessary
      *
-     * @param \Enlight_Event_EventArgs $args
+     * @param Enlight_Event_EventArgs $args
      */
-    public function addNewsletterTemplates(\Enlight_Event_EventArgs $args)
+    public function addNewsletterTemplates(Enlight_Event_EventArgs $args)
     {
         if (!$this->pluginConfig->showRecaptchaForNewsletter || !$this->pluginConfig->recaptchaAPIKey) {
             return;
         }
 
         /**
-         * @var \Enlight_Controller_Action $controller
+         * @var Enlight_Controller_Action $controller
          */
         $controller = $args->getSubject();
 
@@ -681,12 +705,12 @@ class SecuritySubscriber implements SubscriberInterface
     /**
      * add the templates for user manager / otp
      *
-     * @param \Enlight_Event_EventArgs $args
+     * @param Enlight_Event_EventArgs $args
      */
-    public function addUserManagerTemplates(\Enlight_Event_EventArgs $args)
+    public function addUserManagerTemplates(Enlight_Event_EventArgs $args)
     {
         /**
-         * @var \Enlight_Controller_Action $controller
+         * @var Enlight_Controller_Action $controller
          */
         $controller = $args->getSubject();
 
@@ -704,12 +728,12 @@ class SecuritySubscriber implements SubscriberInterface
     /**
      * add templates for login form / otp
      *
-     * @param \Enlight_Event_EventArgs $args
+     * @param Enlight_Event_EventArgs $args
      */
-    public function addLoginTemplates(\Enlight_Event_EventArgs $args)
+    public function addLoginTemplates(Enlight_Event_EventArgs $args)
     {
         /**
-         * @var \Enlight_Controller_Action $controller
+         * @var Enlight_Controller_Action $controller
          */
         $controller = $args->getSubject();
 
@@ -725,12 +749,12 @@ class SecuritySubscriber implements SubscriberInterface
     /**
      * add our custom backend menu template for our custom icon
      *
-     * @param \Enlight_Event_EventArgs $args
+     * @param Enlight_Event_EventArgs $args
      */
-    public function addMenuTemplates(\Enlight_Event_EventArgs $args)
+    public function addMenuTemplates(Enlight_Event_EventArgs $args)
     {
         /**
-         * @var \Enlight_Controller_Action $controller
+         * @var Enlight_Controller_Action $controller
          */
         $controller = $args->getSubject();
 
@@ -757,10 +781,11 @@ class SecuritySubscriber implements SubscriberInterface
     /**
      * save the failed FE login log
      *
-     * @param \Enlight_Event_EventArgs $args
+     * @param Enlight_Event_EventArgs $args
      * @return mixed
+     * @throws Exception
      */
-    public function logFailedFELogin(\Enlight_Event_EventArgs $args)
+    public function logFailedFELogin(Enlight_Event_EventArgs $args)
     {
         if ($this->pluginConfig->logFailedFELogins || $this->pluginConfig->sendLockedAccountMail) {
             $mail = $args->getEmail();
@@ -792,14 +817,15 @@ class SecuritySubscriber implements SubscriberInterface
     /**
      * save the failed BE login log
      *
-     * @param \Enlight_Event_EventArgs $args
+     * @param Enlight_Event_EventArgs $args
      * @return mixed
+     * @throws Exception
      */
-    public function logFailedBELogin(\Enlight_Event_EventArgs $args)
+    public function logFailedBELogin(Enlight_Event_EventArgs $args)
     {
         if ($this->pluginConfig->logFailedBELogins) {
             /**
-             * @var \Shopware_Controllers_Backend_Login $controller
+             * @var Shopware_Controllers_Backend_Login $controller
              */
             $controller = $args->getSubject();
 
@@ -814,11 +840,12 @@ class SecuritySubscriber implements SubscriberInterface
     /**
      * @param string $username
      * @param bool $isBackend
+     * @throws Exception
      */
     protected function saveFailedLogin($username, $isBackend)
     {
         $failedLogin = new FailedLogin();
-        $failedLogin->setCreated(new \DateTime());
+        $failedLogin->setCreated(new DateTime());
         $failedLogin->setUsername($username);
         $failedLogin->setIsBackend($isBackend);
         $failedLogin->setIp($_SERVER['REMOTE_ADDR']);
@@ -832,6 +859,7 @@ class SecuritySubscriber implements SubscriberInterface
      * cron event listerener for log table cleanup
      *
      * @return bool
+     * @throws Exception
      */
     public function onLogCleanupCron()
     {
@@ -852,10 +880,11 @@ class SecuritySubscriber implements SubscriberInterface
     /**
      * @param $interval
      * @param $isBackend
+     * @throws Exception
      */
     protected function cleanUpLogTable($interval, $isBackend)
     {
-        $relevantDateTime = new \DateTime('now - ' . $interval . ' days');
+        $relevantDateTime = new DateTime('now - ' . $interval . ' days');
 
         $sql = "DELETE FROM s_plugin_mittwald_security_failed_logins
                     WHERE isBackend = " . ($isBackend ? 1 : 0) . "
@@ -867,12 +896,11 @@ class SecuritySubscriber implements SubscriberInterface
     /**
      * @param $isBackend
      * @param $limit
-     * @throws \Enlight_Exception
-     * @throws \Zend_Db_Statement_Exception
+     * @throws Exception
      */
     protected function checkFailedLoginLimits($isBackend, $limit)
     {
-        $relevantDateTime = new \DateTime('now - 1 hour');
+        $relevantDateTime = new DateTime('now - 1 hour');
 
         $sql = "SELECT COUNT(id) as c FROM s_plugin_mittwald_security_failed_logins
                 WHERE isBackend = " . ($isBackend ? 1 : 0) . "
@@ -893,6 +921,7 @@ class SecuritySubscriber implements SubscriberInterface
      * Checks the locked account mail interval and sends mail if necessary
      *
      * @param string $mail
+     * @throws Exception
      */
     protected function checkLockedAccountMail($mail)
     {
@@ -906,7 +935,7 @@ class SecuritySubscriber implements SubscriberInterface
         $params = array($mail);
 
         if (intval($this->pluginConfig->sendLockedAccountMailInterval) > 0) {
-            $lockedAccountLimit = new \DateTime('-' . intval($this->pluginConfig->sendLockedAccountMailInterval) . ' minute');
+            $lockedAccountLimit = new DateTime('-' . intval($this->pluginConfig->sendLockedAccountMailInterval) . ' minute');
             $sql .= ' AND (a.mittwald_lastlockedaccountmail IS NULL OR a.mittwald_lastlockedaccountmail < ?)';
             $params[] = $lockedAccountLimit->format("Y-m-d H:i:s");
         }

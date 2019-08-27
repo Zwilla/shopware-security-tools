@@ -1,8 +1,10 @@
 <?php
 namespace Shopware\CustomModels\MittwaldSecurityTools;
 
+use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Shopware\Components\Model\ModelEntity;
+use Shopware\Models\User\User;
 
 /**
  * Copyright (C) 2015 Philipp Mahlow, Mittwald CM-Service GmbH & Co.KG
@@ -41,7 +43,7 @@ class EmergencyPassword extends ModelEntity
 
 
     /**
-     * @var \Shopware\Models\User\User
+     * @var User
      * @ORM\ManyToOne(targetEntity="\Shopware\Models\User\User")
      * @ORM\JoinColumn(name="userID", referencedColumnName="id")
      */
@@ -50,7 +52,7 @@ class EmergencyPassword extends ModelEntity
 
     /**
      * @ORM\Column(name="created", type="datetime", nullable=FALSE)
-     * @var \DateTime
+     * @var DateTime
      */
     private $created;
 
@@ -77,7 +79,7 @@ class EmergencyPassword extends ModelEntity
 
 
     /**
-     * @return \Shopware\Models\User\User
+     * @return User
      */
     public function getUser()
     {
@@ -85,7 +87,7 @@ class EmergencyPassword extends ModelEntity
     }
 
     /**
-     * @param \Shopware\Models\User\User $user
+     * @param User $user
      */
     public function setUser($user)
     {
@@ -93,7 +95,7 @@ class EmergencyPassword extends ModelEntity
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
     public function getCreated()
     {
@@ -101,7 +103,7 @@ class EmergencyPassword extends ModelEntity
     }
 
     /**
-     * @param \DateTime $created
+     * @param DateTime $created
      */
     public function setCreated($created)
     {
@@ -142,4 +144,3 @@ class EmergencyPassword extends ModelEntity
 
 
 }
- 

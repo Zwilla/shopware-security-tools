@@ -3,6 +3,10 @@
 namespace Shopware\Mittwald\SecurityTools\Services;
 
 
+use DateTime;
+use Enlight_Config;
+use Exception;
+
 /**
  * Class LogService
  * Writes log files
@@ -43,16 +47,16 @@ class LogService
 
 
     /**
-     * @var \Enlight_Config
+     * @var Enlight_Config
      */
     protected $config;
 
     /**
      * initialize the logger. create the logs folder and inject config
      *
-     * @param \Enlight_Config $config
+     * @param Enlight_Config $config
      */
-    public function __construct(\Enlight_Config $config)
+    public function __construct(Enlight_Config $config)
     {
         $this->config = $config;
 
@@ -69,6 +73,7 @@ class LogService
      *
      * @param string $topic
      * @param string $content
+     * @throws Exception
      */
     public function error($topic, $content)
     {
@@ -81,6 +86,7 @@ class LogService
      *
      * @param string $topic
      * @param string $content
+     * @throws Exception
      */
     public function debug($topic, $content)
     {
@@ -96,10 +102,11 @@ class LogService
      * @param string $topic
      * @param string $content
      * @param string $file
+     * @throws Exception
      */
     protected function writeLogEntry($topic, $content, $file)
     {
-        $now = new \DateTime();
+        $now = new DateTime();
         $logEntry = $now->format('Y-m-d H:i:s') . ' - ' . $topic . "\n";
         $logEntry .= $content;
         $logEntry .= "--------------------- \n\n";
