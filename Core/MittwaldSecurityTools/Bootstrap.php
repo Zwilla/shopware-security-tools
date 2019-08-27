@@ -45,7 +45,7 @@ class Shopware_Plugins_Core_MittwaldSecurityTools_Bootstrap extends Shopware_Com
      */
     public function getVersion()
     {
-        return "1.5.4";
+        return "1.5.5";
     }
 
 
@@ -496,9 +496,21 @@ class Shopware_Plugins_Core_MittwaldSecurityTools_Bootstrap extends Shopware_Com
         ));
 
         $form->setElement('checkbox', 'useInvisibleRecaptcha', array(
-            'label' => 'Invisible reCAPTCHA verwenden',
+            'label' => 'Invisible reCAPTCHA verwenden(nur v2)',
             'required' => TRUE,
             'position' => 2010
+        ));
+		
+		$form->setElement('select', 'recaptchaVersion', array(
+            'label' => 'reCAPTCHA-Version',
+            'description' => '',
+            'required' => TRUE,
+            'value' => 2,
+            'store' => array(
+                array(2, 'v2'),
+                array(3, 'v3')
+            ),
+            'position' => 209
         ));
 
         $form->setElement('textfield', 'recaptchaAPIKey', array(

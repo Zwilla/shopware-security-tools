@@ -166,6 +166,7 @@ class SecuritySubscriber implements SubscriberInterface
             'Enlight_Controller_Action_PostDispatchSecure_Backend' => 'addMenuTemplates',
             'Enlight_Controller_Action_PostDispatchSecure_Backend_UserManager' => 'addUserManagerTemplates',
             'Enlight_Controller_Action_PostDispatchSecure_Backend_Login' => 'addLoginTemplates',
+            'Enlight_Controller_Action_PostDispatchSecure_Backend_Config' => 'onConfigSave',
             'Enlight_Controller_Action_PostDispatchSecure_Frontend_Register' => 'addTemplates',
             'Enlight_Controller_Action_PostDispatchSecure_Frontend' => 'addNewsletterTemplates',
             'Enlight_Controller_Action_PostDispatchSecure_Frontend_Newsletter' => 'addNewsletterTemplates',
@@ -179,7 +180,63 @@ class SecuritySubscriber implements SubscriberInterface
             'Shopware_Controllers_Frontend_Forms::_validateInput::after' => 'onAfterValidateInput'
         ];
     }
-
+	
+	
+	public function onConfigSave(\Enlight_Event_EventArgs $args)
+    {
+		$controller = $args->getSubject();
+		$request = $controller->Request();
+		//only intercept plugin config saves
+		if($request->getActionName() != 'saveForm')
+			return;
+		//only in our own plugin
+		if($request->getParam('name') != 'MittwaldSecurityTools')
+			return;
+		
+		$configElements = $request->getParam('elements');
+		/* find captcha key and deactivate SW captcha if a key was entered*/
+		foreach($configElements as $ce)
+		{
+			if($ce['name'] == 'recaptchaAPIKey')
+			{
+				if(strlen($ce['values'][0]['value']) > 0)
+					$this->deactiveSwCaptcha();
+				
+				break;
+			}
+		}
+		
+	}
+	
+	/**
+     * sets all shopware captcha method values to 's:9:"nocaptcha";'
+     */
+	private function deactiveSwCaptcha()
+	{
+		$captchaElement = Shopware()->Db()->query("SELECT id
+			FROM s_core_config_elements
+			WHERE name = 'captchaMethod'")->fetch();
+		
+		if(!$captchaElement)
+			return;
+		
+		Shopware()->Db()->query("
+			UPDATE s_core_config_values
+			SET value = 's:9:\"nocaptcha\";'
+			WHERE element_id = ?
+			", [
+				$captchaElement['id']
+			]);
+		
+		Shopware()->Db()->query("
+			UPDATE s_core_config_elements
+			SET value = 's:9:\"nocaptcha\";'
+			WHERE id = ?
+			", [
+				$captchaElement['id']
+			]);
+		
+	}
 
     /**
      * decorates the default auth component
@@ -528,12 +585,19 @@ class SecuritySubscriber implements SubscriberInterface
         if ($this->pluginConfig->showRecaptchaForUserRegistration && $this->pluginConfig->recaptchaAPIKey) {
             $this->assignRecaptchaLanguageKey($view);
             $view->assign('mittwaldSecurityToolsRecaptchaKey', $this->pluginConfig->recaptchaAPIKey);
-
-            if($this->pluginConfig->useInvisibleRecaptcha) {
-                $view->extendsTemplate('frontend/plugin/mittwald_security_tools/customer_recaptcha/invisible.tpl');
-            } else {
-                $view->extendsTemplate('frontend/plugin/mittwald_security_tools/customer_recaptcha/index.tpl');
-            }
+			
+			if($this->pluginConfig->recaptchaVersion == 3)
+			{
+				$view->extendsTemplate('frontend/plugin/mittwald_security_tools/customer_recaptcha3/index.tpl');
+			}
+			else
+			{
+				if($this->pluginConfig->useInvisibleRecaptcha) {
+					$view->extendsTemplate('frontend/plugin/mittwald_security_tools/customer_recaptcha/invisible.tpl');
+				} else {
+					$view->extendsTemplate('frontend/plugin/mittwald_security_tools/customer_recaptcha/index.tpl');
+				}
+			}
         }
 
 
@@ -561,12 +625,19 @@ class SecuritySubscriber implements SubscriberInterface
 
         $this->assignRecaptchaLanguageKey($view);
         $view->assign('mittwaldSecurityToolsRecaptchaKey', $this->pluginConfig->recaptchaAPIKey);
-
-        if($this->pluginConfig->useInvisibleRecaptcha) {
-            $view->extendsTemplate('frontend/plugin/mittwald_security_tools/forms_recaptcha/invisible.tpl');
-        } else {
-            $view->extendsTemplate('frontend/plugin/mittwald_security_tools/forms_recaptcha/index.tpl');
-        }
+		
+		if($this->pluginConfig->recaptchaVersion == 3)
+		{
+			$view->extendsTemplate('frontend/plugin/mittwald_security_tools/forms_recaptcha3/index.tpl');
+		}
+		else
+		{
+			if($this->pluginConfig->useInvisibleRecaptcha) {
+				$view->extendsTemplate('frontend/plugin/mittwald_security_tools/forms_recaptcha/invisible.tpl');
+			} else {
+				$view->extendsTemplate('frontend/plugin/mittwald_security_tools/forms_recaptcha/index.tpl');
+			}
+		}
     }
 
     /**
@@ -590,12 +661,21 @@ class SecuritySubscriber implements SubscriberInterface
 
         $this->assignRecaptchaLanguageKey($view);
         $view->assign('mittwaldSecurityToolsRecaptchaKey', $this->pluginConfig->recaptchaAPIKey);
-
-        if($this->pluginConfig->useInvisibleRecaptcha) {
-            $view->extendsTemplate('frontend/plugin/mittwald_security_tools/newsletter_recaptcha/invisible.tpl');
-        } else {
-            $view->extendsTemplate('frontend/plugin/mittwald_security_tools/newsletter_recaptcha/index.tpl');
-        }
+		
+		
+		if($this->pluginConfig->recaptchaVersion == 3)
+		{
+			$view->extendsTemplate('frontend/plugin/mittwald_security_tools/newsletter_recaptcha3/index.tpl');
+		}
+		else
+		{
+			if($this->pluginConfig->useInvisibleRecaptcha) {
+				$view->extendsTemplate('frontend/plugin/mittwald_security_tools/newsletter_recaptcha/invisible.tpl');
+			} else {
+				$view->extendsTemplate('frontend/plugin/mittwald_security_tools/newsletter_recaptcha/index.tpl');
+			}
+		}
+        
     }
 
     /**
@@ -659,6 +739,8 @@ class SecuritySubscriber implements SubscriberInterface
         }
 
         $view = $controller->View();
+		
+		$view->addTemplateDir($this->pluginPath . 'Views');
         $view->extendsTemplate($this->pluginPath . '/Views/backend/index/header.tpl');
     }
 
