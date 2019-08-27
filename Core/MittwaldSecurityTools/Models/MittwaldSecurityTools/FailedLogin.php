@@ -1,6 +1,7 @@
 <?php
 namespace Shopware\CustomModels\MittwaldSecurityTools;
 
+use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Shopware\Components\Model\ModelEntity;
 
@@ -56,7 +57,7 @@ class FailedLogin extends ModelEntity
 
     /**
      * @ORM\Column(name="created", type="datetime", nullable=FALSE)
-     * @var \DateTime
+     * @var DateTime
      */
     private $created;
 
@@ -114,7 +115,7 @@ class FailedLogin extends ModelEntity
 
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
     public function getCreated()
     {
@@ -123,9 +124,9 @@ class FailedLogin extends ModelEntity
 
 
     /**
-     * @param \DateTime $created
+     * @param DateTime $created
      */
-    public function setCreated(\DateTime $created)
+    public function setCreated(DateTime $created)
     {
         $this->created = $created;
     }
@@ -150,4 +151,3 @@ class FailedLogin extends ModelEntity
 
 
 }
- 

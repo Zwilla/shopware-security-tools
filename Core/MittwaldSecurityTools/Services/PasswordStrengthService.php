@@ -93,7 +93,7 @@ class PasswordStrengthService
             }
 
             //bonus for special chars
-            if (preg_match('/[\!\#\$\%\*\+,\-\.;\/\[\]_:\&\@\§\=]/', $password)) {
+            if (preg_match('/[!#$%*+,\-.;\/\[\]_:&@§=]/', $password)) {
                 $passwordSignificance += $this->specialCharSignificance;
             }
 

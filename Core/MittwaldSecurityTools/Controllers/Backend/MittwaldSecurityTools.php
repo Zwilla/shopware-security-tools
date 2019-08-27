@@ -1,5 +1,8 @@
 <?php
 
+use Shopware\Mittwald\SecurityTools\Services\Check\SslService;
+use Shopware\Mittwald\SecurityTools\Services\Check\UsernameService;
+
 
 /**
  * Class Shopware_Controllers_Backend_MittwaldSecurityTools
@@ -29,13 +32,13 @@ class Shopware_Controllers_Backend_MittwaldSecurityTools extends Shopware_Contro
 
 
     /**
-     * @var \Shopware\Mittwald\SecurityTools\Services\Check\UsernameService
+     * @var UsernameService
      */
     protected $usernameService;
 
 
     /**
-     * @var \Shopware\Mittwald\SecurityTools\Services\Check\SslService
+     * @var SslService
      */
     protected $sslService;
 
@@ -59,9 +62,9 @@ class Shopware_Controllers_Backend_MittwaldSecurityTools extends Shopware_Contro
     {
         $this->config = Shopware()->Plugins()->Core()->MittwaldSecurityTools()->Config();
         $this->db = Shopware()->Db();
-        $this->usernameService = new \Shopware\Mittwald\SecurityTools\Services\Check\UsernameService($this->config,
+        $this->usernameService = new UsernameService($this->config,
             $this->db);
-        $this->sslService = new \Shopware\Mittwald\SecurityTools\Services\Check\SslService($this->config,
+        $this->sslService = new SslService($this->config,
             $this->db);
 
         parent::init();
