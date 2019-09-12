@@ -1,7 +1,8 @@
 {extends file="parent:backend/index/header.tpl"}
 
 {* add our custom icon for the backend menu entry *}
-{block name="backend/base/header/css" append}
+{block name="backend/base/header/css"}
+    {$smarty.block.parent}
     <style>
         .mittwald-custom-icon{
             width:0;
