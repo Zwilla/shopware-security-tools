@@ -1,0 +1,12 @@
+create-plugin:
+  image: alpine:latest
+  stage: build
+  script:
+    - apk add zip
+    - mkdir -p Core/MittwaldSecurityTools
+    - cp -r Components Controllers Models Services Subscribers Views Bootstrap.php info.html LICENSE.txt plugin.png README.md Core/MittwaldSecurityTools
+    - zip -r mittwald-security-tools.zip Core
+  artifacts:
+    paths:
+      - mittwald-security-tools.zip
+    expire_in: 1 week
