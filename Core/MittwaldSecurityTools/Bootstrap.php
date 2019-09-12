@@ -61,11 +61,11 @@ class Shopware_Plugins_Core_MittwaldSecurityTools_Bootstrap extends Shopware_Com
     {
         return array(
             'version' => $this->getVersion(),
-            'copyright' => 'Copyright (c) 2018, Philipp Mahlow, Mittwald CM-Service GmbH & Co.KG',
+            'copyright' => 'Copyright © 2019 Mittwald CM Service GmbH & Co. KG',
             'label' => $this->getLabel(),
-            'description' => file_get_contents($this->Path() . 'info.txt'),
-            'link' => 'http://www.mittwald.de',
-            'author' => 'Philipp Mahlow | Mittwald CM-Service GmbH & Co.KG',
+            'description' => file_get_contents($this->Path() . 'info.html'),
+            'link' => 'https://www.mittwald.de',
+            'author' => 'Mittwald CM Service GmbH & Co. KG',
             'license' => 'GPL v3'
         );
     }
