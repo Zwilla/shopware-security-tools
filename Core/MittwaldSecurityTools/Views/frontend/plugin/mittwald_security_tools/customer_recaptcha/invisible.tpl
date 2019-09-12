@@ -1,12 +1,12 @@
 {extends file="parent:frontend/register/index.tpl"}
 
 {block name='frontend_register_index_form_submit'}
-    {* Submit button *}
+      {* Submit button *}
     <div class="register--action">
-        <button onclick="registrationRecaptcha();" type="submit" class="register--submit btn is--primary is--large is--icon-right" name="Submit">{s name="RegisterIndexNewActionSubmit"}{/s} <i class="icon--arrow-right"></i></button>
+        <button data-sitekey="{$mittwaldSecurityToolsRecaptchaKey}" data-callback="onRecaptchaSubmit" class="g-recaptcha register--submit btn is--primary is--large is--icon-right" name="Submit">
+            {s name="RegisterIndexNewActionSubmit" namespace="frontend/register/index"}{/s} <i class="icon--arrow-right"></i>
+        </button>
     </div>
-
-    <div class="g-recaptcha" id="recaptcha-registration"></div>
 {/block}
 
 {* add googles recaptcha script *}
@@ -15,25 +15,30 @@
 
     <script>
         {literal}
-        var onSubmit = function(token) {
-            alert('submit: '+token);
-        };
 
-        var registrationRecaptcha = async function(e) {
-            alert('und los');
-            grecaptcha.reset();
-            grecaptcha.execute();
-            alert('fertig');
-        };
+        var onRecaptchaSubmit = async function(token)
+        {
+            var elements = $('.has--error').filter((v, i, a) => {
+                if($(i).is(':hidden')) {
+                    return false;
+                }
 
-        var onloadCallback = function() {
-            widgetId = grecaptcha.render('recaptcha-registration', {
-                'sitekey' : '{/literal}{$mittwaldSecurityToolsRecaptchaKey}{literal}',
-                'callback' : onSubmit,
-                'size': 'invisible',
+                if($(i).attr("name") === "register[billing][shippingAddress]" || $(i).attr("name") === "Submit") {
+                    return false;
+                }
+
+                return true;
             });
+
+            if(elements.length === 0) {
+                $("#register--form").trigger("submit");
+                return;
+            }
+
+            grecaptcha.reset();
         };
+
         {/literal}
     </script>
-    <script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit{if $mittwaldSecurityToolsRecaptchaLanguageKey}&hl={$mittwaldSecurityToolsRecaptchaLanguageKey}{/if}" async defer>
+    <script src="https://www.google.com/recaptcha/api.js?{if $mittwaldSecurityToolsRecaptchaLanguageKey}hl={$mittwaldSecurityToolsRecaptchaLanguageKey}{/if}" async defer>
 {/block}
