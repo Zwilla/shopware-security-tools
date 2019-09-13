@@ -71,7 +71,7 @@ class SslService implements CheckServiceInterface
     {
         $sql = "SELECT `name` FROM s_core_shops WHERE active = 1 AND secure = 0 AND host IS NOT NULL";
 
-        $result = $this->db->query($sql, $this->badUsernames);
+        $result = $this->db->query($sql);
         $shopnames = $result->fetchAll();
 
         $return = [];
