@@ -39,7 +39,7 @@ Ext.define('Shopware.apps.MittwaldSecurityTools.view.user.Create', {
                 var repeatField = field.up('window').down('[name=password2]');
                 var success = true;
                 if (!val) success = true;
-                if (val != repeatField.getValue()) success = false;
+                if (val !== repeatField.getValue()) success = false;
                 if (val.length < 8) success = false;
                 if (field.calcStrength(val) < {$minimumPasswordStrengthBackendUser}) {
                     success = false;
@@ -52,13 +52,13 @@ Ext.define('Shopware.apps.MittwaldSecurityTools.view.user.Create', {
                 if (!field.up('window').edit && !val) return false;
                 var originalField = field.up('window').down('[name=password]');
                 var success = true;
-                if (val != originalField.getValue()) success = false;
+                if (val !== originalField.getValue()) success = false;
                 return success;
             },
             passwordRepeatText: '{s name="create_user/password_error_repeat"}Repeat password properly!{/s}'
         });
     },
-    getUserTab: function () {
+    getUserForm: function () {
         var me = this;
         var tabPanel = me.callParent(arguments);
 
@@ -95,14 +95,40 @@ Ext.define('Shopware.apps.MittwaldSecurityTools.view.user.Create', {
                     }
 
                     //add our new tab...
+                    tabPanel.add(Ext.create('Ext.form.FieldSet', {
+                            title: 'Yubikey verbinden',
+                            bodyPadding: 10,
+                            defaults: {
+                                labelWidth: '155px',
+                                labelStyle: 'font-weight: 700; text-align: right;'
+                            },
+                            items: [
+                                Ext.create('Ext.form.Label', {
+                                    html: me.getYubikeyText(me.yubikeyField.getValue())
+                                }),
+                                me.yubikeyField
+                            ]
+                        })
+                    );
+
                     tabPanel.add(
-                        me.getYubikeyTab()
+                        Ext.create('Ext.form.FieldSet', {
+                            title: 'Notfall-Passwörter',
+                            bodyPadding: 10,
+                            defaults: {
+                                labelWidth: '155px',
+                                labelStyle: 'font-weight: 700; text-align: right;'
+                            },
+                            items: [
+                                Ext.create('Shopware.apps.MittwaldSecurityTools.view.emergencyPassword.Grid', {
+                                    store: me.getEmergencyPasswordStore()
+                                })
+                            ]
+                        })
                     );
                 });
-
             }
         });
-
 
         //... and inject the new yubikey secret to the attribute field if necessary
         me.on({
@@ -116,34 +142,6 @@ Ext.define('Shopware.apps.MittwaldSecurityTools.view.user.Create', {
         });
 
         return tabPanel;
-    },
-    getYubikeyTab: function (value) {
-        var me = this;
-
-        return Ext.create('Ext.panel.Panel', {
-            title: '2-Faktor Authentifizierung',
-            layout: 'accordion',
-            items: [
-                Ext.create('Ext.form.FormPanel',
-                    {
-                        title: 'Yubikey verbinden',
-                        bodyPadding: 10,
-                        defaults: {
-                            labelWidth: '155px',
-                            labelStyle: 'font-weight: 700; text-align: right;'
-                        },
-                        items: [
-                            Ext.create('Ext.form.Label', {
-                                html: me.getYubikeyText(me.yubikeyField.getValue())
-                            }),
-                            me.yubikeyField
-                        ]
-                }),
-                Ext.create('Shopware.apps.MittwaldSecurityTools.view.emergencyPassword.Grid', {
-                    store: me.getEmergencyPasswordStore()
-                })
-            ]
-        });
     },
     getEmergencyPasswordStore: function () {
         var me = this;
@@ -170,19 +168,19 @@ Ext.define('Shopware.apps.MittwaldSecurityTools.view.user.Create', {
         }
 
         text += 'Befolgen Sie folgende Schritte, um einen neuen YubiKey mit dem Benutzerkonto zu verbinden. ' +
-            'Verbinden Sie Ihren YubiKey per USB mit Ihrem Computer, ' +
-            'klicken Sie in das Eingabefeld, drücken Sie den Taster auf dem ' +
-            'YubiKey und speichern Sie das Formular. <br/><br/>' +
-            '<b>Bitte beachten Sie, dass der Login im Falle eines Verlusts des zugeordneten YubiKeys nicht mehr ' +
-            'ohne weiteres möglich ist.</b> Sie können im Tab "Notfall Passwörter" für diesen Zweck Notfall Passwörter ' +
-            'generieren. Wenn Sie einen YubiKey für ein Benutzerkonto benutzen, sollten Sie sich <b>auf jeden Fall Notfall ' +
-            'Passwörter generieren</b> und diese über den Button "CSV Download" <b>herunterladen, ausdrucken und ' +
-            'an einem sicheren Ort verwahren.</b> <br/><br/>' +
-            'Um sich bei Verlust des YubiKeys trotzdem einloggen zu können, benutzen Sie eins der Notfall Passwörter als ' +
-            'One-Time-Password. <b>Bitte beachten Sie, dass jedes Notfall Passwort nur einmalig für den Login verwendet werden kann.</b>' +
-            '<br/><br/>' +
-            '<b>Leeren Sie den Cache vollständig, wenn Sie die Zwei-Faktor-Authentifizierung aktivieren oder deaktivieren.</b>' +
-            '<br/><br/><br/>';
+                'Verbinden Sie Ihren YubiKey per USB mit Ihrem Computer, ' +
+                'klicken Sie in das Eingabefeld, drücken Sie den Taster auf dem ' +
+                'YubiKey und speichern Sie das Formular. <br/><br/>' +
+                '<b>Bitte beachten Sie, dass der Login im Falle eines Verlusts des zugeordneten YubiKeys nicht mehr ' +
+                'ohne weiteres möglich ist.</b> Sie können im Tab "Notfall Passwörter" für diesen Zweck Notfall Passwörter ' +
+                'generieren. Wenn Sie einen YubiKey für ein Benutzerkonto benutzen, sollten Sie sich <b>auf jeden Fall Notfall ' +
+                'Passwörter generieren</b> und diese über den Button "CSV Download" <b>herunterladen, ausdrucken und ' +
+                'an einem sicheren Ort verwahren.</b> <br/><br/>' +
+                'Um sich bei Verlust des YubiKeys trotzdem einloggen zu können, benutzen Sie eins der Notfall Passwörter als ' +
+                'One-Time-Password. <b>Bitte beachten Sie, dass jedes Notfall Passwort nur einmalig für den Login verwendet werden kann.</b>' +
+                '<br/><br/>' +
+                '<b>Leeren Sie den Cache vollständig, wenn Sie die Zwei-Faktor-Authentifizierung aktivieren oder deaktivieren.</b>' +
+                '<br/><br/><br/>';
 
         return text;
     }

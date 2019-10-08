@@ -23,7 +23,6 @@
 //{block name="backend/user_manager/view/user/create" prepend}
 Ext.define('Shopware.apps.MittwaldSecurityTools.view.emergencyPassword.Grid', {
     extend : 'Ext.grid.Panel',
-    title  : 'Notfall Passwörter',
     columns: [
         {
             text     : 'Passwort',
