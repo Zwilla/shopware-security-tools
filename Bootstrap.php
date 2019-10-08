@@ -50,7 +50,7 @@ class Shopware_Plugins_Core_MittwaldSecurityTools_Bootstrap extends Shopware_Com
      */
     public function getVersion()
     {
-        return "1.5.8";
+        return "1.5.9";
     }
 
 
