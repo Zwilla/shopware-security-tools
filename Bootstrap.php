@@ -631,7 +631,7 @@ class Shopware_Plugins_Core_MittwaldSecurityTools_Bootstrap extends Shopware_Com
                     VALUES (NULL, NULL, 'sFAILEDLOGIN', '{config name=mail}', '{config name=shopName}',
                             'Fehlgeschlagene Loginversuche im {config name=shopName}',
                             '{include file="string:{config name=emailheaderplain}"} \nHallo, \nder Schwellwert für fehlgeschlagene Login-Versuche wurde überschritten. Dies kann möglicherweise auf einen Angriff hinweisen. \n{include file="string:{config name=emailfooterplain}"}',
-                            '', '0', '', '2', '', '0');
+                            '', '0', '', '2', NULL, '0');
 EOT;
 
         $this->get('db')->executeUpdate($sql);
